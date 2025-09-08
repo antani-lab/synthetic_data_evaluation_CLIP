@@ -1,0 +1,77 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+
+% Disable page numbers
+\pagestyle{empty}
+
+\begin{document}
+
+\section*{Algorithm: Compute Synthetic Coverage in BiomedCLIP Space}
+
+\begin{algorithm}[H]
+\caption{Coverage of Synthetic Images w.r.t.\ Real Images}
+\begin{small}
+\begin{algorithmic}[1]
+
+\Require Real image sets $\mathcal{R}_{\text{mild}}, \mathcal{R}_{\text{severe}}$
+\Require Synthetic sets $\{\mathcal{S}_g\}_{g\in\mathcal{G}}$ (each tagged by severity)
+\Require BiomedCLIP encoder $f$, preprocess $\pi$, thresholds $\mathcal{T}=\{\tau_k\}_{k=1}^{K}$
+\Ensure Table with columns:
+\Statex \hspace{1.5em} Generator, Severity, Num\_Real, Num\_Synth, Threshold,
+\Statex \hspace{1.5em} Num\_Real\_Covered, Coverage\_Fraction, Mean\_Min\_Dist, Std\_Min\_Dist
+
+\Statex
+
+\Procedure{EmbedFolder}{$\mathcal{I}$} \Comment{Return unit-normalized embeddings}
+  \State $\mathbf{Z} \gets [\,]$
+  \For{\textbf{each} image $x \in \mathcal{I}$}
+    \State $z \gets f(\pi(x))$; \quad $z \gets z/\|z\|_2$
+    \State append $z$ to $\mathbf{Z}$
+  \EndFor
+  \State \Return $\mathbf{Z}$ \Comment{$\mathbf{Z} \in \mathbb{R}^{|\mathcal{I}|\times D}$}
+\EndProcedure
+
+\Statex
+
+\Procedure{Coverage}{$\mathbf{R}, \mathbf{S}, \mathcal{T}, g, \text{sev}$}
+  \State $\mathbf{S\!im} \gets \mathbf{R}\mathbf{S}^\top$ \Comment{cosine similarity (unit vectors)}
+  \State $\mathbf{D} \gets \mathbf{1}-\mathbf{S\!im}$ \Comment{cosine distance}
+  \State $d_{\min}[i] \gets \min_j \mathbf{D}[i,j]$ \textbf{ for } $i=1..|\mathbf{R}|$
+  \State $\mu \gets \mathrm{mean}(d_{\min})$; \quad $\sigma \gets \mathrm{std}(d_{\min})$
+  \For{\textbf{each} $\tau \in \mathcal{T}$}
+    \State $n_{\text{cov}} \gets |\{\,i : d_{\min}[i] < \tau\,\}|$
+    \State $\text{cov} \gets n_{\text{cov}} / |\mathbf{R}|$
+    \State \textbf{record} $\langle g, \text{sev}, |\mathbf{R}|, |\mathbf{S}|, \tau,
+           n_{\text{cov}}, \text{cov}, \mu, \sigma \rangle$
+  \EndFor
+\EndProcedure
+
+\Statex
+
+\State $\mathbf{R}_{\text{mild}} \gets \Call{EmbedFolder}{\mathcal{R}_{\text{mild}}}$
+\State $\mathbf{R}_{\text{severe}} \gets \Call{EmbedFolder}{\mathcal{R}_{\text{severe}}}$
+
+\For{\textbf{each} generator $g \in \mathcal{G}$}
+  \State $\mathbf{S}_g \gets \Call{EmbedFolder}{\mathcal{S}_g}$
+  \If{$g$ tagged ``mild''}
+    \State $\Call{Coverage}{\mathbf{R}_{\text{mild}}, \mathbf{S}_g, \mathcal{T}, g, \text{mild}}$
+  \Else
+    \State $\Call{Coverage}{\mathbf{R}_{\text{severe}}, \mathbf{S}_g, \mathcal{T}, g, \text{severe}}$
+  \EndIf
+\EndFor
+
+\State \textbf{return} results table
+
+\Statex \textit{Note:} Unit-normalization makes cosine similarity a dot product; coverage at
+\Statex threshold $\tau$ is the fraction of real images whose nearest synthetic neighbor
+\Statex lies within distance $\tau$ in BiomedCLIP embedding space.
+
+\end{algorithmic}
+\end{small}
+\end{algorithm}
+
+\end{document}

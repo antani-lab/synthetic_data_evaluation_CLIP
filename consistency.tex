@@ -1,0 +1,67 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{caption} % to hide algorithm numbering
+
+\pagestyle{empty}
+\captionsetup[algorithm]{labelformat=empty} % remove "Algorithm 1" numbering
+
+\begin{document}
+
+\section*{Algorithm: Synthetic Images Consistency in BiomedCLIP Space}
+
+\begin{algorithm}[H]
+\caption{Algorithm: Compute synthetic image consistency via cosine similarity to real image centroids}
+\begin{small}
+\begin{algorithmic}[1]
+\Require Real image folders $\mathcal{R}_{\text{mild}}$, $\mathcal{R}_{\text{severe}}$
+\Require Synthetic folders $\{\mathcal{S}_k\}_{k=1}^K$ (each labeled mild/severe)
+\Require BiomedCLIP vision encoder $f(\cdot)$, preprocessor $g(\cdot)$, batch size $B$
+\Ensure Table with (Generator, Severity, $N$, Mean, Std, Min, Max, Range) of cosine similarity; optional ANOVA by severity
+
+\State \textbf{Embed real images}
+\State $Z_{\text{mild}} \gets \Call{EmbedAndNorm}{\mathcal{R}_{\text{mild}}, f, g, B}$
+\State $Z_{\text{severe}} \gets \Call{EmbedAndNorm}{\mathcal{R}_{\text{severe}}, f, g, B}$
+
+\State \textbf{Compute real--class centroids}
+\State $\mu_{\text{mild}} \gets \text{Normalize}\!\left(\frac{1}{|Z_{\text{mild}}|}\sum_{z \in Z_{\text{mild}}} z\right)$
+\State $\mu_{\text{severe}} \gets \text{Normalize}\!\left(\frac{1}{|Z_{\text{severe}}|}\sum_{z \in Z_{\text{severe}}} z\right)$
+
+\State \textbf{Initialize} empty results table $\mathcal{T}$
+
+\For{\textbf{each} synthetic set $\mathcal{S}_k$ with label $c \in \{\text{mild},\text{severe}\}$}
+  \State $X_k \gets \Call{EmbedAndNorm}{\mathcal{S}_k, f, g, B}$ \hfill // unit--norm rows
+  \State $\mu_c \gets \mu_{\text{mild}}$ if $c=\text{mild}$ else $\mu_{\text{severe}}$
+  \State \textbf{Cosine similarities to centroid:} $S_k \gets \{\, x^\top \mu_c \;|\; x \in X_k \,\}$
+  \State \textbf{Summaries:} $\overline{s}_k \gets \text{Mean}(S_k)$;\; $\sigma_k \gets \text{Std}(S_k)$
+  \State \hspace{2.1em} $m_k \gets \min(S_k)$;\; $M_k \gets \max(S_k)$;\; $r_k \gets M_k - m_k$
+  \State \textbf{Append} $(\text{Generator}=k,\ \text{Severity}=c,\ N=|X_k|,\ \text{Mean}=\overline{s}_k,$
+  \State \hspace{2.1em} $\text{Std}=\sigma_k,\ \text{Min}=m_k,\ \text{Max}=M_k,\ \text{Range}=r_k)$ to $\mathcal{T}$
+\EndFor
+
+\State \textbf{(Optional) One--way ANOVA per severity}
+\For{$c \in \{\text{mild},\text{severe}\}$}
+  \State Collect $\{S_k : \text{Severity}(k)=c\}$ and compute $(F, p)$ via ANOVA
+  \State Record $(c, F, p)$ alongside $\mathcal{T}$
+\EndFor
+
+\State \textbf{Return} $\mathcal{T}$ (and ANOVA results if computed)
+
+\Function{EmbedAndNorm}{$\mathcal{I}, f, g, B$}
+  \State Split $\mathcal{I}$ into batches of size $B$
+  \For{\textbf{each} batch $\mathcal{B}$}
+    \State Load images, apply $g$; compute features $F \gets f(g(\mathcal{B}))$
+    \State Row--wise L2--normalize $F \leftarrow \frac{F}{\|F\|_2}$
+    \State Accumulate $F$ into list
+  \EndFor
+  \State \Return concatenated, unit--normalized embeddings
+\EndFunction
+
+\end{algorithmic}
+\end{small}
+\end{algorithm}
+
+\end{document}

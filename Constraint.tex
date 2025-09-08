@@ -1,0 +1,57 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\section*{Algorithm: Synthetic Images Constraint in BiomedCLIP Space}
+
+\begin{algorithm}[H]
+\caption{Compute class–centroid cosine similarity statistics (constraint)}
+\begin{small}
+\begin{algorithmic}[1]
+\Require Real image folders $\mathcal{R}_{\text{mild}}$, $\mathcal{R}_{\text{severe}}$
+\Require Synthetic folders $\{\mathcal{S}_k\}_{k=1}^K$ (each labeled mild/severe)
+\Require BiomedCLIP vision encoder $f(\cdot)$ and preprocessor $g(\cdot)$
+\Require Batch size $B$
+\Ensure Table with (Generator, Severity, Num\_Synth, Mean\_CosSim, Std\_CosSim)
+
+\State \textbf{Embed real images}
+\State $Z_{\text{mild}} \gets \text{EmbedAndNorm}(\mathcal{R}_{\text{mild}}, f, g, B)$
+\State $Z_{\text{severe}} \gets \text{EmbedAndNorm}(\mathcal{R}_{\text{severe}}, f, g, B)$
+
+\State \textbf{Compute class centroids}
+\State $\mu_{\text{mild}} \gets \text{Normalize}\!\left(\frac{1}{|Z_{\text{mild}}|}\sum_{z \in Z_{\text{mild}}} z\right)$
+\State $\mu_{\text{severe}} \gets \text{Normalize}\!\left(\frac{1}{|Z_{\text{severe}}|}\sum_{z \in Z_{\text{severe}}} z\right)$
+
+\State \textbf{For each synthetic set} $\mathcal{S}_k$ \textbf{with label} $c \in \{\text{mild},\text{severe}\}$
+\State \quad $X_k \gets \text{EmbedAndNorm}(\mathcal{S}_k, f, g, B)$
+\State \quad $\mu_c \gets \begin{cases}
+\mu_{\text{mild}}, & c=\text{mild}\\
+\mu_{\text{severe}}, & c=\text{severe}
+\end{cases}$
+\State \quad \textbf{Compute cosine similarities to centroid}
+\State \quad $S_k \gets \{\, x^\top \mu_c \;|\; x \in X_k \,\}$ \hfill (each $x,\mu_c$ unit norm)
+\State \quad \textbf{Summarize constraint}
+\State \quad $\overline{s}_k \gets \text{Mean}(S_k)$; \; $\sigma_k \gets \text{Std}(S_k)$
+\State \quad \textbf{Append row} $(\text{Generator}=k,\ \text{Severity}=c,\ |X_k|,\ \overline{s}_k,\ \sigma_k)$
+
+\State \textbf{Return} concatenated table for all $K$ synthetic sets
+
+\Function{EmbedAndNorm}{$\mathcal{I}, f, g, B$}
+  \State Split $\mathcal{I}$ into batches of size $B$
+  \State For each batch: load images, apply $g$, encode with $f$ to get features
+  \State L2-normalize features along channel dimension
+  \State \Return concatenated, unit-normalized embeddings
+\EndFunction
+
+\end{algorithmic}
+\end{small}
+\end{algorithm}
+
+\end{document}
