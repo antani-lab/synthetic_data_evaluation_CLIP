@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+
+# Notebook and editor state
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/
+
+# Local data, checkpoints, and generated results
+data/
+checkpoints/
+outputs/
+results/
+*.pt
+*.pth
+*.ckpt

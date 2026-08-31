@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated manuscript."
+title: "Task-Grounded Latent-Space Evaluation of Synthetic Chest X-rays for Downstream Classification"
+type: software
+version: 0.1.0
+date-released: 2026-08-31
+repository-code: "https://github.com/antani-lab/synthetic_data_evaluation_CLIP"
+authors:
+  - family-names: Liang
+    given-names: Zhaohui
+  - family-names: Rajaraman
+    given-names: Sivaramakrishnan
+  - family-names: Marini
+    given-names: Niccolo
+  - family-names: Xue
+    given-names: Zhiyun
+  - family-names: Antani
+    given-names: Sameer
+    email: sameer.antani@nih.gov
