@@ -160,8 +160,12 @@ The repository does not redistribute MIDRC or IUHN-CXR images, synthetic images,
 
 ## Citation
 
-Please cite the associated manuscript when using this code. A machine-readable citation template is provided in [`CITATION.cff`](CITATION.cff) and should be updated with the journal citation and DOI after publication.
+Please cite both the repository and associated manuscript when using this code:
+
+> Liang, Z., Rajaraman, S., Marini, N., Xue, Z., Antani, S., 2026. Task-Grounded Latent-Space Evaluation of Synthetic Chest X-rays for Downstream Classification [software]. GitHub. https://github.com/antani-lab/synthetic_data_evaluation_CLIP.
+
+A machine-readable citation is provided in [`CITATION.cff`](CITATION.cff). Add the journal citation and DOI after publication.
 
 ## License
 
-No software license was included in the source repository. Until the maintainers add one, all rights remain reserved; contact the corresponding author regarding reuse.
+This project is released under the [MIT License](LICENSE).
