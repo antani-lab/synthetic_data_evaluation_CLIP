@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "synthetic-data-evaluation-clip"
+version = "0.1.0"
+description = "Task-grounded latent-space evaluation of synthetic chest X-rays"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  {name = "Zhaohui Liang"},
+  {name = "Sivaramakrishnan Rajaraman"},
+  {name = "Niccolo Marini"},
+  {name = "Zhiyun Xue"},
+  {name = "Sameer Antani", email = "sameer.antani@nih.gov"},
+]
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "scipy>=1.10",
+  "scikit-learn>=1.3",
+]
+
+[project.optional-dependencies]
+biomedclip = [
+  "Pillow>=10",
+  "torch>=2.1",
+  "torchvision>=0.16",
+  "open-clip-torch>=2.24",
+]
+metrics = [
+  "clean-fid>=0.1.35",
+  "Pillow>=10",
+  "torch>=2.1",
+  "torchvision>=0.16",
+  "open-clip-torch>=2.24",
+]
+test = ["pytest>=8"]
+all = [
+  "clean-fid>=0.1.35",
+  "Pillow>=10",
+  "torch>=2.1",
+  "torchvision>=0.16",
+  "open-clip-torch>=2.24",
+  "pytest>=8",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
