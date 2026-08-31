@@ -47,7 +47,11 @@ def spearman_permutation_test(
     y = np.asarray(utility, dtype=float)
     if x.shape != y.shape or x.ndim != 1 or len(x) < 3:
         raise ValueError("quality and utility must be matching one-dimensional arrays of length >= 3")
+    if n_permutations < 1:
+        raise ValueError("n_permutations must be at least 1")
     group_values = None if groups is None else np.asarray(groups)
+    if group_values is not None and group_values.shape != x.shape:
+        raise ValueError("groups must have the same shape as quality and utility")
     statistic = (
         float(spearmanr(x, y).statistic)
         if group_values is None
@@ -56,7 +60,13 @@ def spearman_permutation_test(
     rng = np.random.default_rng(seed)
     null_statistics = np.empty(n_permutations, dtype=float)
     for index in range(n_permutations):
-        permuted = rng.permutation(y)
+        if group_values is None:
+            permuted = rng.permutation(y)
+        else:
+            permuted = y.copy()
+            for group in np.unique(group_values):
+                mask = group_values == group
+                permuted[mask] = rng.permutation(y[mask])
         null_statistics[index] = (
             float(spearmanr(x, permuted).statistic)
             if group_values is None
@@ -85,6 +95,10 @@ def generator_cluster_bootstrap(
     group_values = None if groups is None else np.asarray(groups)
     if x.shape != y.shape or x.shape != cluster_values.shape:
         raise ValueError("quality, utility, and generators must have matching shapes")
+    if n_resamples < 1:
+        raise ValueError("n_resamples must be at least 1")
+    if group_values is not None and group_values.shape != x.shape:
+        raise ValueError("groups must have the same shape as quality and utility")
     unique_clusters = np.unique(cluster_values)
     if len(unique_clusters) < 2:
         raise ValueError("At least two generator clusters are required")

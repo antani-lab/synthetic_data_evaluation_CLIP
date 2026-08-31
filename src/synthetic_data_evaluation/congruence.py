@@ -94,6 +94,8 @@ def clip_prompt_similarity(
     batch_size: int = 32,
 ) -> np.ndarray:
     """Return raw image-text cosine similarities for the fixed CLIP prompt."""
+    if batch_size < 1:
+        raise ValueError("batch_size must be at least 1")
     try:
         import open_clip
         import torch

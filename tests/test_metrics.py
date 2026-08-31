@@ -3,6 +3,7 @@ import numpy as np
 from synthetic_data_evaluation.congruence import peak_signal_to_noise_ratio
 from synthetic_data_evaluation.constraint_consistency import constraint_consistency
 from synthetic_data_evaluation.coverage import coverage_curve, nearest_synthetic_distances
+from synthetic_data_evaluation.embedding import BiomedCLIPEncoder
 
 
 def test_coverage_uses_real_to_synthetic_nearest_neighbors():
@@ -27,3 +28,12 @@ def test_constraint_consistency_reports_manuscript_definitions():
 def test_psnr_requires_aligned_shapes_and_handles_exact_match():
     image = np.zeros((4, 4))
     assert np.isinf(peak_signal_to_noise_ratio(image, image))
+
+
+def test_biomedclip_encoder_rejects_nonpositive_batch_size_before_model_loading():
+    try:
+        BiomedCLIPEncoder(batch_size=0)
+    except ValueError as error:
+        assert "batch_size" in str(error)
+    else:
+        raise AssertionError("Expected a ValueError for batch_size=0")

@@ -5,7 +5,10 @@ from synthetic_data_evaluation.downstream import (
     holm_adjust,
     paired_stratified_bootstrap,
 )
-from synthetic_data_evaluation.quality_utility import partial_spearman_by_group
+from synthetic_data_evaluation.quality_utility import (
+    partial_spearman_by_group,
+    spearman_permutation_test,
+)
 
 
 def test_holm_adjustment_preserves_input_order():
@@ -52,3 +55,14 @@ def test_severity_adjusted_partial_rank_removes_between_group_pattern():
     severity = np.array(["mild"] * 3 + ["severe"] * 3)
     statistic = partial_spearman_by_group(quality, utility, severity)
     assert statistic > 0.99
+
+
+def test_permutation_analysis_rejects_nonpositive_counts():
+    quality = np.array([1.0, 2.0, 3.0])
+    utility = np.array([3.0, 2.0, 1.0])
+    try:
+        spearman_permutation_test(quality, utility, n_permutations=0)
+    except ValueError as error:
+        assert "n_permutations" in str(error)
+    else:
+        raise AssertionError("Expected a ValueError for n_permutations=0")

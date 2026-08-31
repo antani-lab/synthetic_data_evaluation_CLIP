@@ -28,6 +28,8 @@ class BiomedCLIPEncoder:
     batch_size: int = 32
 
     def __post_init__(self) -> None:
+        if self.batch_size < 1:
+            raise ValueError("batch_size must be at least 1")
         try:
             import torch
             import torch.nn.functional as functional
