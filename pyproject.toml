@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Task-grounded latent-space evaluation of synthetic chest X-rays"
 readme = "README.md"
 requires-python = ">=3.10"
+license = {file = "LICENSE"}
 authors = [
   {name = "Zhaohui Liang"},
   {name = "Sivaramakrishnan Rajaraman"},
@@ -15,6 +16,7 @@ authors = [
   {name = "Zhiyun Xue"},
   {name = "Sameer Antani", email = "sameer.antani@nih.gov"},
 ]
+classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
   "numpy>=1.24",
   "pandas>=2.0",
